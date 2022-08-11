@@ -38,8 +38,8 @@ pipeline {
             dir('ci_tmp') {
               sh("curl -o cireport.log ${BUILD_URL}consoleText")
               sh("curl -L ${BUILD_URL}wfapi")
-              sh("curl -o report.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test/main/report.py")
-              sh("curl -o status.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test/main/status.py")
+              sh("curl -o report.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test_script/main/report.py")
+              sh("curl -o status.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test_script/main/status.py")
               sh("cat status.py")
               sh("pytest --html=report.html --self-contained-html report.py || true")
               sh("aws s3 sync ./ s3://dgl-ci-result/${JOB_NAME}/${BUILD_NUMBER}/${BUILD_ID}/logs/  --exclude '*' --include '*.log' --acl public-read --content-type text/plain")
