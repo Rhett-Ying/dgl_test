@@ -64,8 +64,8 @@ pipeline {
           docker.image('dgllib/dgl-ci-awscli:v220418').inside("--pull always --entrypoint=''") {
             sh("rm -rf ci_tmp")
             dir('ci_tmp') {
-              sh("curl -o cireport.log ${BUILD_URL}consoleText")
-              sh("curl -L ${BUILD_URL}wfapi")
+              sh("curl -k -o cireport.log ${BUILD_URL}consoleText")
+              sh("curl -k -L ${BUILD_URL}wfapi")
               sh("curl -o report.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test_script/main/report.py")
               sh("curl -o status.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test_script/main/status.py")
               sh("cat status.py")
