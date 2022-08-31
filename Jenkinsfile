@@ -16,7 +16,7 @@ pipeline {
       }
       steps {
         script {
-          echo("${env.BUILD_USER}")
+          echo("${BUILD_USER}")
           def prOpenTriggerCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
           if (prOpenTriggerCause) {
             if (env.BUILD_ID == '1') {
