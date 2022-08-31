@@ -11,7 +11,7 @@ pipeline {
         issueCommentTrigger('@Rhett-Ying .*')
   }
   stages {
-    stage('Bot Instruction') {
+    stage('CI Authorization ~ NonIssueComment') {
       agent {
         docker {
             label 'linux-benchmark-node'
@@ -19,19 +19,32 @@ pipeline {
             alwaysPull true
         }
       }
+      when { not { triggeredBy 'IssueCommentCause' } }
       steps {
         script {
           def author = env.CHANGE_AUTHOR
           if (!is_authorized(author)) {
-            error("Not authorized to trigger CI.")
+            error("Not authorized to trigger CI. Please ask core developer to help trigger via issuing comment: \n - `@dgl-bot CI`")
           }
-          def prOpenTriggerCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
-          if (prOpenTriggerCause) {
-            if (env.BUILD_ID == '1') {
-              pullRequest.comment('To trigger regression tests: \n - `@dgl-bot run [instance-type] [which tests] [compare-with-branch]`; \n For example: `@dgl-bot run g4dn.4xlarge all dmlc/master` or `@dgl-bot run c5.9xlarge kernel,api dmlc/master`')
-            }
+        }
+      }
+    }
+    stage('CI Authorization ~ IssueComment') {
+      agent {
+        docker {
+            label 'linux-benchmark-node'
+            image 'dgllib/dgl-ci-lint'
+            alwaysPull true
+        }
+      }
+      when { triggeredBy 'IssueCommentCause' }
+      steps {
+        script {
+          def comment = env.GITHUB_COMMENT
+          def author = env.GITHUB_COMMENT_AUTHOR
+          if (!is_authorized(author)) {
+            error("Not authorized to trigger CI via issuing comment.")
           }
-          echo('Not the first build')
         }
       }
     }
