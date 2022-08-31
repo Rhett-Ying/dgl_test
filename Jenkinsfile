@@ -1,13 +1,54 @@
 #!/usr/bin/env groovy
 
+def is_authorized(name) {
+  def authorized_user = ['Rhett-Ying']
+  return (name in authorized_user)
+}
+
 pipeline {
   agent any
   triggers {
         issueCommentTrigger('@Rhett-Ying .*')
   }
   stages {
-    stage('CI') {
+    stage('CI Authorization ~ NonIssueComment') {
+      agent {
+        docker {
+            label 'linux-benchmark-node'
+            image 'dgllib/dgl-ci-lint'
+            alwaysPull true
+        }
+      }
       when { not { triggeredBy 'IssueCommentCause' } }
+      steps {
+        script {
+          def author = env.CHANGE_AUTHOR
+          if (!is_authorized(author)) {
+            error("Not authorized to trigger CI. Please ask core developer to help trigger via issuing comment: \n - `@dgl-bot CI`")
+          }
+        }
+      }
+    }
+    stage('CI Authorization ~ IssueComment') {
+      agent {
+        docker {
+            label 'linux-benchmark-node'
+            image 'dgllib/dgl-ci-lint'
+            alwaysPull true
+        }
+      }
+      when { triggeredBy 'IssueCommentCause' }
+      steps {
+        script {
+          def comment = env.GITHUB_COMMENT
+          def author = env.GITHUB_COMMENT_AUTHOR
+          if (!is_authorized(author)) {
+            error("Not authorized to trigger CI via issuing comment.")
+          }
+        }
+      }
+    }
+    stage('CI') {
       stages {
         stage('Unit Test') {
           agent {
@@ -36,8 +77,8 @@ pipeline {
           docker.image('dgllib/dgl-ci-awscli:v220418').inside("--pull always --entrypoint=''") {
             sh("rm -rf ci_tmp")
             dir('ci_tmp') {
-              sh("curl -o cireport.log ${BUILD_URL}consoleText")
-              sh("curl -L ${BUILD_URL}wfapi")
+              sh("curl -k -o cireport.log ${BUILD_URL}consoleText")
+              sh("curl -k -L ${BUILD_URL}wfapi")
               sh("curl -o report.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test_script/main/report.py")
               sh("curl -o status.py https://raw.githubusercontent.com/Rhett-Ying/dgl_test_script/main/status.py")
               sh("cat status.py")
