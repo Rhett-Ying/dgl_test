@@ -8,7 +8,7 @@ def is_authorized(name) {
 pipeline {
   agent any
   triggers {
-        issueCommentTrigger('@Rhett-Ying .*')
+        issueCommentTrigger('@dgl-bot .*')
   }
   stages {
     stage('CI Authorization ~ NonIssueComment') {
