@@ -1,5 +1,10 @@
 #!/usr/bin/env groovy
 
+def is_authorized(name) {
+  def authorized_user = ['Rhett-YingA']
+  return (name in authorized_user)
+}
+
 pipeline {
   agent any
   triggers {
@@ -16,6 +21,10 @@ pipeline {
       }
       steps {
         script {
+          def author = env.CHANGE_AUTHOR
+          if (!is_authorized(author)) {
+            error("Not authorized to trigger CI.")
+          }
           def prOpenTriggerCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
           if (prOpenTriggerCause) {
             if (env.BUILD_ID == '1') {
