@@ -6,8 +6,28 @@ pipeline {
         issueCommentTrigger('@Rhett-Ying .*')
   }
   stages {
+    stage('Bot Instruction') {
+      agent {
+        docker {
+            label 'linux-benchmark-node'
+            image 'dgllib/dgl-ci-lint'
+            alwaysPull true
+        }
+      }
+      steps {
+        script {
+          echo("${env.BUILD_USER}")
+          def prOpenTriggerCause = currentBuild.getBuildCauses('jenkins.branch.BranchEventCause')
+          if (prOpenTriggerCause) {
+            if (env.BUILD_ID == '1') {
+              pullRequest.comment('To trigger regression tests: \n - `@dgl-bot run [instance-type] [which tests] [compare-with-branch]`; \n For example: `@dgl-bot run g4dn.4xlarge all dmlc/master` or `@dgl-bot run c5.9xlarge kernel,api dmlc/master`')
+            }
+          }
+          echo('Not the first build')
+        }
+      }
+    }
     stage('CI') {
-      when { not { triggeredBy 'IssueCommentCause' } }
       stages {
         stage('Unit Test') {
           agent {
