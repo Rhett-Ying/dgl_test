@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def is_authorized(name) {
-  def authorized_user = ['Rhett-YingA']
+  def authorized_user = ['Rhett-Ying']
   return (name in authorized_user)
 }
 
