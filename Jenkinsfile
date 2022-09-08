@@ -23,6 +23,7 @@ pipeline {
       steps {
         script {
           def author = env.CHANGE_AUTHOR
+          echo("author: ${env.CHANGE_AUTHOR}")
           if (!is_authorized(author)) {
             error("Not authorized to trigger CI. Please ask core developer to help trigger via issuing comment: \n - `@dgl-bot CI`")
           }
