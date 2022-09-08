@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def is_authorized(name) {
-  def authorized_user = ['Rhett-Ying', 'noreply']
+  def authorized_user = ['Rhett-Ying']
   return (name in authorized_user)
 }
 
@@ -24,7 +24,7 @@ pipeline {
         script {
           def author = env.CHANGE_AUTHOR
           echo("author: ${env.CHANGE_AUTHOR}")
-          if (!is_authorized(author)) {
+          if (author && !is_authorized(author)) {
             error("Not authorized to trigger CI. Please ask core developer to help trigger via issuing comment: \n - `@dgl-bot CI`")
           }
         }
